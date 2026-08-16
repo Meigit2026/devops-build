@@ -14,6 +14,21 @@ pipeline {
             }
         }
 
+        stage('Test AWS Connection') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'aws-credentials',
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )]) {
+                    sh '''
+                        export AWS_DEFAULT_REGION=ap-south-1
+                        aws sts get-caller-identity
+                    '''
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
