@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-build
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: devops-build
+  template:
+    metadata:
+      labels:
+        app: devops-build
+    spec:
+      containers:
+        - name: devops-build
+          image: meiviezhidocker/dev:v1
+          ports:
+            - containerPort: 3000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devops-build-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: devops-build
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
