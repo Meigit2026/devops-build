@@ -29,14 +29,19 @@ pipeline {
                         passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                     )
                 ]) {
-                    sh 'export AWS_DEFAULT_REGION=ap-south-1 && aws sts get-caller-identity'
+                    sh '''
+                        export AWS_DEFAULT_REGION=ap-south-1
+                        aws sts get-caller-identity
+                    '''
                 }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+                sh '''
+                    docker build -t $IMAGE_NAME:$IMAGE_TAG .
+                '''
             }
         }
 
@@ -50,7 +55,10 @@ pipeline {
                     )
                 ]) {
                     sh '''
-                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        echo $DOCKER_PASS | docker login \
+                            -u $DOCKER_USER \
+                            --password-stdin
+
                         docker push $IMAGE_NAME:$IMAGE_TAG
                     '''
                 }
@@ -73,13 +81,17 @@ pipeline {
                             --region ap-south-1 \
                             --name devops-capstone
 
+                        echo "Checking EKS nodes..."
                         kubectl get nodes
 
+                        echo "Applying Kubernetes configuration..."
                         kubectl apply -f deployment.yaml
 
+                        echo "Updating deployment image..."
                         kubectl set image deployment/devops-build \
                             devops-build=$IMAGE_NAME:$IMAGE_TAG
 
+                        echo "Waiting for rollout..."
                         kubectl rollout status deployment/devops-build
                     '''
                 }

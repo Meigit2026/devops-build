@@ -15,6 +15,7 @@ spec:
       containers:
         - name: devops-build
           image: meiviezhidocker/dev:v1
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
 
