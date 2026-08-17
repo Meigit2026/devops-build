@@ -2,28 +2,34 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "meiviezhidocker/dev"
-        IMAGE_TAG = "v1"
+        IMAGE_NAME = 'meiviezhidocker/dev'
+        IMAGE_TAG = "build-${BUILD_NUMBER}"
     }
 
     stages {
+
         stage('Checkout') {
             steps {
-                checkout scm
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/dev']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Meigit2026/devops-build.git'
+                    ]]
+                ])
             }
         }
 
         stage('Test AWS Connection') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'aws-credentials',
-                    usernameVariable: 'AWS_ACCESS_KEY_ID',
-                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
-                )]) {
-                    sh '''
-                        export AWS_DEFAULT_REGION=ap-south-1
-                        aws sts get-caller-identity
-                    '''
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'aws-credentials',
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )
+                ]) {
+                    sh 'export AWS_DEFAULT_REGION=ap-south-1 && aws sts get-caller-identity'
                 }
             }
         }
@@ -36,14 +42,45 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
                     sh '''
                         echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                         docker push $IMAGE_NAME:$IMAGE_TAG
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to EKS') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'aws-credentials',
+                        usernameVariable: 'AWS_ACCESS_KEY_ID',
+                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                    )
+                ]) {
+                    sh '''
+                        export AWS_DEFAULT_REGION=ap-south-1
+
+                        aws eks update-kubeconfig \
+                            --region ap-south-1 \
+                            --name devops-capstone
+
+                        kubectl get nodes
+
+                        kubectl apply -f deployment.yaml
+
+                        kubectl set image deployment/devops-build \
+                            devops-build=$IMAGE_NAME:$IMAGE_TAG
+
+                        kubectl rollout status deployment/devops-build
                     '''
                 }
             }
