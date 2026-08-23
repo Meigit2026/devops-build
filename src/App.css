@@ -1,38 +1,140 @@
-.App {
-  text-align: center;
+* {
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f7fa;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+.app {
   min-height: 100vh;
+}
+
+.navbar {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  padding: 18px 50px;
+  background: #1f2937;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.navbar h1 {
+  margin: 0;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.nav-right {
+  display: flex;
+  gap: 30px;
+}
+
+.hero {
+  text-align: center;
+  padding: 70px 20px;
+  background: #e5e7eb;
+}
+
+.hero h2 {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.hero p {
+  font-size: 18px;
+}
+
+.hero button {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 6px;
+  background: #2563eb;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.products {
+  padding: 40px 50px;
+}
+
+.products h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+}
+
+.product-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.product-image {
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef2ff;
+  border-radius: 8px;
+  font-size: 60px;
+}
+
+.category {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.product-card h3 {
+  margin: 10px 0;
+}
+
+.price {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.cart-button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background: #111827;
+  color: white;
+  cursor: pointer;
+}
+
+footer {
+  margin-top: 40px;
+  padding: 25px;
+  text-align: center;
+  background: #1f2937;
+  color: white;
+}
+
+@media (max-width: 800px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
-  to {
-    transform: rotate(360deg);
+}
+
+@media (max-width: 500px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar {
+    padding: 15px 20px;
+  }
+
+  .products {
+    padding: 25px 20px;
   }
 }
